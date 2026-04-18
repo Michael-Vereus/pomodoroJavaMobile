@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/main"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:padding="25dp"
+    tools:context=".MainActivity">
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Pomodoro"
+        android:layout_gravity="center"
+        android:textSize="50dp"
+        android:layout_marginTop="20dp"
+    />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="20dp"
+        android:gravity="center"
+        android:orientation="horizontal">
+
+        <Button
+            android:id="@+id/pomodoroBtn"
+            android:layout_width="100dp"
+            android:layout_height="40dp"
+            android:text="@string/pomodoro"
+            android:textSize="12sp"
+            android:padding="1dp"
+            android:layout_marginRight="10dp"
+        />
+
+        <Button
+            android:id="@+id/shortBreakBtn"
+            android:layout_width="100dp"
+            android:layout_height="40dp"
+            android:text="@string/short_break"
+            android:padding="1dp"
+            android:textSize="12sp"
+        />
+
+        <Button
+            android:id="@+id/longBreakBtn"
+            android:layout_width="100dp"
+            android:layout_height="40dp"
+            android:text="@string/long_break"
+            android:textSize="12sp"
+            android:padding="1dp"
+            android:layout_marginLeft="10dp"
+        />
+
+    </LinearLayout>
+    
+    <TextView
+        android:id="@+id/countdown"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/timer"
+        android:layout_marginTop="10dp"
+        android:textSize="100sp"
+        android:layout_gravity="center"
+    />
+
+    <Button
+        android:id="@+id/startOrPauseCountdown"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/start"
+        android:layout_marginTop="10dp"
+        android:layout_gravity="center"
+    />
+
+    <TextView
+        android:id="@+id/currentTask"
+        android:layout_width="match_parent"
+        android:layout_height="30dp"
+        android:text="@string/currentTaskName"
+        android:textSize="15sp"
+        android:gravity="center"
+        android:layout_marginTop="10dp"
+    />
+
+    <Button
+        android:id="@+id/addTask"
+        android:layout_width="match_parent"
+        android:layout_height="40dp"
+        android:padding="2dp"
+        android:text="@string/addTaskPlaceholder"
+    />
+
+    <ListView
+        android:layout_gravity="center"
+        android:id="@+id/listOfTask"
+        android:layout_width="match_parent"
+        android:layout_height="200dp"
+        android:dividerHeight="2dp"
+    />
+
+    <TextView
+        android:id="@+id/footer"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="20dp"
+        android:text="@string/footer_placeholder"
+        android:gravity="center"
+    />
+
+
+</LinearLayout>

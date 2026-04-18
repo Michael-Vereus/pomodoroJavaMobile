@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="horizontal"
+    android:padding="20dp"
+    >
+
+    <Button
+        android:id="@+id/checkBtn"
+        android:layout_width="35dp"
+        android:layout_height="40dp"
+        android:padding="1dp"
+        android:layout_marginRight="20dp"
+        android:text="✔"
+    />
+
+    <TextView
+        android:id="@+id/taskName"
+        android:layout_width="160dp"
+        android:layout_height="40dp"
+        android:text="Task Name"
+        android:gravity="center_vertical"
+        android:layout_marginRight="20dp"
+        android:padding="10dp"
+    />
+
+    <TextView
+        android:id="@+id/taskTimeMultiplier"
+        android:layout_width="60dp"
+        android:layout_height="40dp"
+        android:padding="2dp"
+        android:gravity="center_vertical"
+        android:text="0"
+    />
+
+
+</LinearLayout>

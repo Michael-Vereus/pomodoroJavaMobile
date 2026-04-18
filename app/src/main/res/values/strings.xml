@@ -1,0 +1,11 @@
+<resources>
+    <string name="app_name">pomodoroTechniqueApp</string>
+    <string name="addTaskPlaceholder">Add Task [ + ]</string>
+    <string name="currentTaskName">#1 Time to focus !</string>
+    <string name="long_break">Long Break</string>
+    <string name="short_break">Short Break</string>
+    <string name="pomodoro">Pomodoro</string>
+    <string name="timer">25 : 00</string>
+    <string name="start">Start</string>
+    <string name="footer_placeholder">Pomos n/n Finish At hh:mm (n,nh)</string>
+</resources>
