@@ -36,7 +36,9 @@ public class TaskController {
     }
     public Task nextTask(){
         for(Task t : getListOfTask()){
-            return t;
+            if (t.isComplete()){
+                return t;
+            }
         }
         return null;
     }

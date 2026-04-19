@@ -20,9 +20,13 @@ import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
 import com.mika.pomodorotechniqueapp.controller.TaskController;
+import com.mika.pomodorotechniqueapp.model.SessionMode;
 import com.mika.pomodorotechniqueapp.model.Task;
+import com.mika.pomodorotechniqueapp.utility.OnTimerEventListener;
 import com.mika.pomodorotechniqueapp.utility.TaskAdapter;
+import com.mika.pomodorotechniqueapp.utility.TimerManager;
 
+import java.sql.Time;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 
@@ -31,13 +35,9 @@ public class MainActivity extends AppCompatActivity {
     private TextView countdown, currentTask, footer;
     private ListView taskList;
     private TaskController taskController;
-
-
-    private CountDownTimer countDownTimer;
-    private long timeLeftMillis = 25 * 60 * 1000;
-    // logic e di dalam semenit itu ada 60 detik sedangkan didalam 1 detik itu ada 1000 milisecond
-    // jdi buat konversi dri 25 menit ke bentuk milisecond tinggal kali 60 kali 1000
-    private boolean isRunning = false;
+    private TimerManager timerManager;
+    private SessionMode currentMode = SessionMode.POMODORO;
+    // removed timeLeftMillis, isRunning, and CountDownTimer and moved it all to a stand alone class (TimerManager)
 
     @SuppressLint("MissingInflatedId")
     @Override
@@ -61,42 +61,70 @@ public class MainActivity extends AppCompatActivity {
         this.addTask = findViewById(R.id.addTask);
         this.taskList = findViewById(R.id.listOfTask);
         this.footer = findViewById(R.id.footer);
+
         this.taskController = new TaskController();
 
-        TaskAdapter taskAdapter = new TaskAdapter(MainActivity.this, taskController.getListOfTask(), nextTask -> {
-            if (countDownTimer != null) countDownTimer.cancel(); // stop current timer
-
-            if (nextTask == null) {
-                countdown.setText("Done!");
-                currentTask.setText("All tasks completed");
-                timeLeftMillis = 0;
-                setFooter();
-                return;
+        this.timerManager = new TimerManager(currentMode.toMillis(), new OnTimerEventListener() {
+            @Override
+            public void onTick(Long millisLeft) {
+                updateTimerDisplay(millisLeft);
             }
 
-            // ini buat ngitung brp milisec task selanjut e
-            timeLeftMillis = (long)(nextTask.getTaskMultiplier() * 25 * 60 * 1000);
-            setFooter();
+            @Override
+            public void onFinish() {
+                startOrPause.setText("Start");
+            }
+        });
 
-            // update the display
-            currentTask.setText(nextTask.getTaskName());
-            updateTimerDisplay();
+        TaskAdapter taskAdapter = new TaskAdapter(
+            MainActivity.this,
+            taskController.getListOfTask(),
+            nextTask -> {
+                if (nextTask == null){
+                    timerManager.reset(0);
+                    countdown.setText("Done");
+                    currentTask.setText("All tasks completed !");
+                    setFooter();
+                    return;
+                }
+                // nti tinggal ambil waktu dri session mode e
+                long newDuration = currentMode.getTaskTime(nextTask);
+                timerManager.reset(newDuration);
+                startOrPause.setText("Start");
+
+                // update the display
+                currentTask.setText(nextTask.getTaskName());
+                updateTimerDisplay(timerManager.getTimeLeftMillis());
+                setFooter();
         });
         taskList.setAdapter(taskAdapter);
 
+        // ini buat pas pertama kali start
+        Task first = taskController.nextTask();
+        if (first != null) {
+            currentTask.setText(first.getTaskName());
+            timerManager.reset(currentMode.getTaskTime(first));
+        }
+        updateTimerDisplay(timerManager.getTimeLeftMillis());
+        setFooter();
+
         // startOrPause listener buat start / stop timer
         startOrPause.setOnClickListener(v -> {
-            if (isRunning) {
-                pauseTimer();
+            if (timerManager.isRunning()) {
+                timerManager.pauseTimer();
                 startOrPause.setText("Start");
             } else {
-                startTimer();
+                timerManager.startTimer();
                 startOrPause.setText("Pause");
             }
         });
 
-        addTask.setOnClickListener(v -> {
-            // inflate your custom layout — same idea as Bootstrap injecting HTML into modal body
+        this.pomodoro.setOnClickListener(v -> switchMode(SessionMode.POMODORO));
+        this.shortBreak.setOnClickListener(v -> switchMode(SessionMode.SHORT_BREAK));
+        this.longBreak.setOnClickListener(v -> switchMode(SessionMode.LONG_BREAK));
+
+        addTask.setOnClickListener(v -> { // i got inspired from the concept of modal in bootstrap
+            // basically inflate the layout manually
             View dialogView = getLayoutInflater().inflate(R.layout.dialog_add_task, null);
 
             // ambil id widget di dialog e
@@ -113,48 +141,35 @@ public class MainActivity extends AppCompatActivity {
                         if (!name.isEmpty() && !multiplierStr.isEmpty()) {
                             float pomodoroMultiplier = Float.parseFloat(multiplierStr);
                             taskController.addTask(name, pomodoroMultiplier);
-                            Task nextTask = taskController.nextTask();
                             taskAdapter.notifyDataSetChanged();
-                            timeLeftMillis = (long)(nextTask.getTaskMultiplier() * 25 * 60 * 1000);
-                            updateTimerDisplay();
+                            Task nextTask = taskController.nextTask();
+                            if (nextTask != null && currentMode == SessionMode.POMODORO){
+                                timerManager.reset(currentMode.getTaskTime(nextTask));
+                                currentTask.setText(nextTask.getTaskName());
+                                updateTimerDisplay(timerManager.getTimeLeftMillis());
+                            }
                             setFooter();
                         }
                     })
                     .setNegativeButton("Cancel", null)
                     .show();
         });
-
-
-
     }
 
+    private void switchMode(SessionMode mode) {
+        currentMode = mode;
 
-    private void startTimer() {
-        countDownTimer = new CountDownTimer(timeLeftMillis, 1000) {
-            @Override
-            public void onTick(long millisUntilFinished) {
-                timeLeftMillis = millisUntilFinished;
-                updateTimerDisplay();
-            }
-            @Override
-            public void onFinish() {
-                startOrPause.setText("start");
-                isRunning = false;
-            }
-        }.start();
+        // calculate new duration — for POMODORO, scale by active task if one exists
+        Task activeTask = taskController.nextTask();
+        long newDuration = currentMode.getTaskTime(activeTask);
 
-        isRunning = true;
+        timerManager.reset(newDuration);
+        startOrPause.setText("Start");
+        updateTimerDisplay(timerManager.getTimeLeftMillis());
+        setFooter();
     }
-
-    private void pauseTimer() {
-        if (countDownTimer != null) {
-            countDownTimer.cancel();
-        }
-        isRunning = false;
-    }
-
     // update time display tiap detik
-    private void updateTimerDisplay() {
+    private void updateTimerDisplay(long timeLeftMillis) {
         long minutes = timeLeftMillis / 1000 / 60;
         long seconds = (timeLeftMillis / 1000) % 60;
         countdown.setText(String.format("%02d:%02d", minutes, seconds));
