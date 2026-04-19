@@ -158,11 +158,16 @@ public class MainActivity extends AppCompatActivity {
 
     private void switchMode(SessionMode mode) {
         currentMode = mode;
-
         // calculate new duration — for POMODORO, scale by active task if one exists
         Task activeTask = taskController.nextTask();
-        long newDuration = currentMode.getTaskTime(activeTask);
-
+        long newDuration;
+        if (currentMode == SessionMode.LONG_BREAK || currentMode == SessionMode.SHORT_BREAK){
+            newDuration = currentMode.toMillis();
+        } else if(activeTask == null ){
+            newDuration = 0;
+        } else {
+            newDuration = currentMode.getTaskTime(activeTask);
+        }
         timerManager.reset(newDuration);
         startOrPause.setText("Start");
         updateTimerDisplay(timerManager.getTimeLeftMillis());

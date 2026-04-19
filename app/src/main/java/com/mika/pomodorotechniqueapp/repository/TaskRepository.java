@@ -9,9 +9,6 @@ public class TaskRepository {
     private List<Task> listOfTask;
     public TaskRepository(){
         this.listOfTask = new ArrayList<>();
-        listOfTask.add(new Task("Code", 1));
-        listOfTask.add(new Task("Rally Time", 2));
-        listOfTask.add(new Task("Sleep", 3));
     }
 
     public List<Task> getListOfTask() {return listOfTask;}
